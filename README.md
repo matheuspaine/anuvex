@@ -2,94 +2,138 @@
 
 **Inteligência por trás de cada anúncio.**
 
-Assistente inteligente para criação e complementação de anúncios em marketplaces. Projeto educacional independente de portfólio, inspirado em desafios de qualidade de anúncios, sem vínculo com a OLX. Versão 4.2.
+Assistente inteligente de anúncios para marketplaces, com **LLM local**, **classificação híbrida**, **validação de dados**, **supervisão humana** e **testes automatizados**.
 
-## Problema e solução
+![CI](https://github.com/matheuspaine/anuvex/actions/workflows/ci.yml/badge.svg)
 
-Anúncios incompletos dificultam decisões de compra. Modelos generativos podem acrescentar características não informadas. O Anuvex combina um LLM local, regras determinísticas e supervisão humana: o modelo sugere categorias e perguntas, enquanto o Python monta o anúncio exclusivamente com dados fornecidos pelo vendedor.
+---
 
-## Funcionalidades
+## Sobre o projeto
 
-- Formulário web com validação Pydantic e preço em Decimal.
-- Classificação híbrida: regras para produtos conhecidos e IA para os demais.
-- Sugestões de informações complementares, correção manual da categoria e confirmação de respostas.
-- Anúncio factual, indicador de preenchimento e alertas heurísticos de consistência.
-- Exportação TXT e JSON; fallback para anúncio factual quando a API falha.
-- Interface personalizada em lilás e laranja.
+O **Anuvex** é uma aplicação desenvolvida para ajudar na criação de anúncios de produtos para marketplaces.
 
-## Arquitetura
+A proposta do projeto é combinar:
 
-```mermaid
-flowchart TD
-    U[Vendedor] --> A[Streamlit: app.py]
-    A --> M[Pydantic: models.py]
-    M --> L[Anúncio factual: listing.py]
-    M --> C[Regras: classifier.py]
-    C --> S[API REST: ai_service.py]
-    P[prompts.py] --> S
-    S <--> O[Ollama local / Qwen 2.5 7B]
-    S --> V[Validação das sugestões]
-    C --> H[Revisão humana]
-    V --> H
-    L --> H
-    H --> R[validators.py e listing.py]
-    R --> E[exporters.py: TXT e JSON]
-```
+- **regras determinísticas**
+- **validação estruturada**
+- **supervisão humana**
+- **inteligência artificial local (Ollama + Qwen)**
 
-[Detalhes da arquitetura](docs/arquitetura.md)
+para gerar anúncios mais organizados, consistentes e seguros.
 
-## Tecnologias
+O sistema não publica anúncios automaticamente. Ele atua como um **assistente de apoio**, ajudando o usuário a estruturar melhor as informações antes da publicação.
 
-Python 3.12, Streamlit, Requests, Pydantic 2, Ollama, Qwen 2.5 7B, Pytest e Git. Pipeline de CI proposto com GitHub Actions.
+---
 
-## Como executar (Windows / PowerShell)
+## Problema de negócio
 
-Pré-requisitos: Python 3.12, [Ollama](https://ollama.com/download) instalado e em execução, espaço em disco e memória suficientes para o modelo. A execução local não utiliza AWS nem APIs pagas.
+Ao anunciar produtos em marketplaces, é comum encontrar problemas como:
 
-Na raiz do projeto:
+- descrições incompletas
+- informações inconsistentes
+- falta de padronização
+- erros de preenchimento
+- baixa qualidade dos anúncios
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-ollama pull qwen2.5:7b
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1
-```
+O **Anuvex** foi criado para reduzir esses problemas por meio de:
 
-Abra http://127.0.0.1:8501. Não é necessário ativar o ambiente virtual. Para encerrar, pressione Ctrl+C.
+- coleta guiada de informações
+- classificação sugerida por IA
+- perguntas complementares por categoria
+- validações de consistência
+- exportação estruturada em TXT e JSON
 
-## Estrutura
+---
 
-| Arquivo | Responsabilidade |
-|---|---|
-| app.py | Interface e estado da sessão |
-| models.py | Esquemas e validação de dados |
-| classifier.py | Classificação e perguntas por regras |
-| ai_service.py | Comunicação HTTP e validação da resposta |
-| prompts.py | Instruções para o modelo |
-| validators.py | Respostas complementares e consistência |
-| listing.py | Anúncio factual e completude |
-| exporters.py | Exportação e formatação monetária |
-| styles.py | Identidade visual |
-| config.py | Configurações |
-| tests/ | Testes automatizados |
-| .github/workflows/ci.yml | Pipeline de integração contínua |
+## Principais funcionalidades
 
-## Testes e integração contínua
+- Geração de anúncio factual com base nos dados informados
+- Classificação híbrida de produtos
+- Perguntas complementares por categoria
+- Análise de consistência entre os dados
+- Indicador de completude do anúncio
+- Exportação em **TXT** e **JSON**
+- Integração com **LLM local** via Ollama
+- Testes automatizados com **Pytest**
+- Pipeline de **CI com GitHub Actions**
 
-Na versão 4.2, 35 testes passaram no Windows (0,60 s na execução registrada). Incluem regras de negócio, validação, exportação e integração HTTP simulada. O pipeline executa compilação e Pytest em Python 3.12 a cada push ou pull request, sem carregar um modelo real. A execução no GitHub ainda precisa ser confirmada após a publicação. Os testes não equivalem a cobertura integral nem a uma auditoria certificada.
+---
 
-## Segurança e limitações
+## Tecnologias utilizadas
 
-- Dados do vendedor não são necessariamente verdadeiros. O anúncio factual evita texto livre inventado pela IA, mas categorias e perguntas ainda podem estar incorretas.
-- Prompt injection não é totalmente mitigado. O modelo não executa ferramentas nem publica anúncios.
-- Completude mede preenchimento dos critérios avaliados; não mede veracidade ou qualidade comercial.
-- Alertas usam heurísticas, incluindo bateria abaixo de 90% em produto declarado novo. Não são normas oficiais de marketplace.
-- Texto sem significado, dimensões sem unidade e erros ortográficos ainda podem ser aceitos.
-- Dependências diretas fixadas; transitivas não travadas e sem auditoria de vulnerabilidades concluída.
-- Mantenha a aplicação em loopback. Não exponha à internet sem autenticação e revisão adicional.
-- O teste manual final confirmou o fluxo de anúncio, mas não comprovou isoladamente uma chamada real bem-sucedida ao Ollama nessa versão.
+- **Python 3.12**
+- **Streamlit**
+- **Pydantic**
+- **Requests**
+- **Pytest**
+- **Ollama**
+- **Qwen**
+- **Git / GitHub**
+- **GitHub Actions**
 
-## Autor
+---
 
-Matheus Olimpio da Silva — projeto de aprendizado e portfólio, desenvolvido com apoio de IA e validação prática local.
+## Arquitetura da solução
+
+O projeto foi organizado em módulos para separar responsabilidades:
+
+- `app.py` — interface e fluxo principal
+- `models.py` — modelagem e validação de dados
+- `classifier.py` — classificação híbrida
+- `ai_service.py` — comunicação com o modelo local
+- `prompts.py` — engenharia de prompt
+- `validators.py` — regras de negócio e consistência
+- `listing.py` — construção do anúncio
+- `exporters.py` — exportação dos dados
+- `styles.py` — identidade visual
+- `config.py` — configurações da aplicação
+
+Documentação complementar:
+- `docs/arquitetura.md`
+
+---
+
+## Demonstração da aplicação
+
+### Tela inicial
+![Tela inicial](docs/images/01-home.png)
+
+### Complementação inteligente do anúncio
+![Complementação](docs/images/02-complemento.png)
+
+### Complementação preenchida
+![Complementação preenchida](docs/images/03-complemento-preenchido.png)
+
+### Anúncio final gerado
+![Anúncio final](docs/images/04-anuncio-final.png)
+
+### Análise de consistência
+![Análise de consistência](docs/images/05-consistencia.png)
+
+### Integração contínua com GitHub Actions
+![GitHub Actions](docs/images/06-github-actions.png)
+
+---
+
+## Qualidade e testes
+
+O projeto possui **35 testes automatizados**, cobrindo regras de negócio, validações e cenários críticos.
+
+### Resultado local
+- **35/35 testes aprovados**
+
+### Integração contínua
+O repositório utiliza **GitHub Actions** para executar automaticamente:
+
+- instalação de dependências
+- compilação dos arquivos Python
+- execução dos testes automatizados
+
+---
+
+## Como executar o projeto
+
+### 1. Clonar o repositório
+```bash
+git clone https://github.com/matheuspaine/anuvex.git
+cd anuvex

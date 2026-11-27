@@ -1,0 +1,18 @@
+ .github/workflows/ci.yml |  19 [32m+++++++[m
+ .gitignore               |   9 [32m++++[m
+ README.md                |  95 [32m++++++++++++++++++++++++++++++++++[m
+ ai_service.py            |  37 [32m++++++++++++++[m
+ app.py                   | 129 [32m+++++++++++++++++++++++++++++++++++++++++++++++[m
+ classifier.py            |  64 [32m+++++++++++++++++++++++[m
+ config.py                |   3 [32m++[m
+ docs/arquitetura.md      |  33 [32m++++++++++++[m
+ exporters.py             |  16 [32m++++++[m
+ listing.py               |  43 [32m++++++++++++++++[m
+ models.py                |  21 [32m++++++++[m
+ prompts.py               |  19 [32m+++++++[m
+ requirements.txt         |   4 [32m++[m
+ styles.py                |  82 [32m++++++++++++++++++++++++++++++[m
+ tests/test_auditoria.py  |  55 [32m++++++++++++++++++++[m
+ tests/test_regras.py     |  52 [32m+++++++++++++++++++[m
+ validators.py            |  53 [32m+++++++++++++++++++[m
+ 17 files changed, 734 insertions(+)
